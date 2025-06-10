@@ -32,13 +32,10 @@ function AddNewCoursePage() {
   const navigate = useNavigate();
   const params = useParams();
 
-  console.log(params);
-
   function isEmpty(value) {
     if (Array.isArray(value)) {
       return value.length === 0;
     }
-
     return value === "" || value === null || value === undefined;
   }
 
@@ -61,7 +58,7 @@ function AddNewCoursePage() {
       }
 
       if (item.freePreview) {
-        hasFreePreview = true; //found at least one free preview
+        hasFreePreview = true;
       }
     }
 
@@ -69,23 +66,37 @@ function AddNewCoursePage() {
   }
 
   async function handleCreateCourse() {
+    let existingCourse = null;
+
+    if (currentEditedCourseId !== null) {
+      const res = await fetchInstructorCourseDetailsService(currentEditedCourseId);
+      if (res?.success) {
+        existingCourse = res.data;
+      }
+    }
+
     const courseFinalFormData = {
       instructorId: auth?.user?._id,
       instructorName: auth?.user?.userName,
       date: new Date(),
       ...courseLandingFormData,
-      students: [],
       curriculum: courseCurriculumFormData,
       isPublised: true,
+
+      // Preserve these from existing course if editing
+      students: existingCourse?.students || [],
+      revenue: existingCourse?.revenue || 0,
+      totalSales: existingCourse?.totalSales || 0,
+      ratings: existingCourse?.ratings || [],
     };
 
-    const response =
-      currentEditedCourseId !== null
-        ? await updateCourseByIdService(
-            currentEditedCourseId,
-            courseFinalFormData
-          )
-        : await addNewCourseService(courseFinalFormData);
+    let response;
+
+    if (currentEditedCourseId !== null) {
+      response = await updateCourseByIdService(currentEditedCourseId, courseFinalFormData);
+    } else {
+      response = await addNewCourseService(courseFinalFormData);
+    }
 
     if (response?.success) {
       setCourseLandingFormData(courseLandingInitialFormData);
@@ -98,36 +109,26 @@ function AddNewCoursePage() {
   }
 
   async function fetchCurrentCourseDetails() {
-    const response = await fetchInstructorCourseDetailsService(
-      currentEditedCourseId
-    );
+    const response = await fetchInstructorCourseDetailsService(currentEditedCourseId);
 
     if (response?.success) {
-      const setCourseFormData = Object.keys(
-        courseLandingInitialFormData
-      ).reduce((acc, key) => {
+      const setCourseFormData = Object.keys(courseLandingInitialFormData).reduce((acc, key) => {
         acc[key] = response?.data[key] || courseLandingInitialFormData[key];
-
         return acc;
       }, {});
 
-      console.log(setCourseFormData, response?.data, "setCourseFormData");
       setCourseLandingFormData(setCourseFormData);
-      setCourseCurriculumFormData(response?.data?.curriculum);
+      setCourseCurriculumFormData(response?.data?.curriculum || []);
     }
-
-    console.log(response, "response");
   }
-
-  useEffect(() => {
-    if (currentEditedCourseId !== null) fetchCurrentCourseDetails();
-  }, [currentEditedCourseId]);
 
   useEffect(() => {
     if (params?.courseId) setCurrentEditedCourseId(params?.courseId);
   }, [params?.courseId]);
 
-  console.log(params, currentEditedCourseId, "params");
+  useEffect(() => {
+    if (currentEditedCourseId !== null) fetchCurrentCourseDetails();
+  }, [currentEditedCourseId]);
 
   return (
     <div className="container mx-auto p-4">
@@ -147,9 +148,7 @@ function AddNewCoursePage() {
             <Tabs defaultValue="curriculum" className="space-y-4">
               <TabsList>
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-                <TabsTrigger value="course-landing-page">
-                  Course Landing Page
-                </TabsTrigger>
+                <TabsTrigger value="course-landing-page">Course Landing Page</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
               </TabsList>
               <TabsContent value="curriculum">

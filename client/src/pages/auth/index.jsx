@@ -28,20 +28,28 @@ function AuthPage() {
     setActiveTab(value);
   }
 
+  function isValidEmail(email) {
+    // Simple regex for email format
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   function checkIfSignInFormIsValid() {
     return (
       signInFormData &&
-      signInFormData.userEmail !== "" &&
-      signInFormData.password !== ""
+      isValidEmail(signInFormData.userEmail) &&
+      signInFormData.password &&
+      signInFormData.password.length >= 8
     );
   }
 
   function checkIfSignUpFormIsValid() {
     return (
       signUpFormData &&
-      signUpFormData.userName !== "" &&
-      signUpFormData.userEmail !== "" &&
-      signUpFormData.password !== ""
+      signUpFormData.userName &&
+      signUpFormData.userName.trim() !== "" &&
+      isValidEmail(signUpFormData.userEmail) &&
+      signUpFormData.password &&
+      signUpFormData.password.length >= 8
     );
   }
 

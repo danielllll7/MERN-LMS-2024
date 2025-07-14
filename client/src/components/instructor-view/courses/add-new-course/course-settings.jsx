@@ -48,7 +48,7 @@ function CourseSettings() {
         <CardTitle>Course Settings</CardTitle>
       </CardHeader>
       <div className="p-4">
-        {mediaUploadProgress ? (
+        {mediaUploadProgress ? ( // Show progress bar if media is uploading
           <MediaProgressbar
             isMediaUploading={mediaUploadProgress}
             progress={mediaUploadProgressPercentage}
@@ -57,12 +57,12 @@ function CourseSettings() {
       </div>
       <CardContent>
         {courseLandingFormData?.image ? (
-          <img src={courseLandingFormData.image} />
+          <img src={courseLandingFormData.image} /> // Display the uploaded image
         ) : (
           <div className="flex flex-col gap-3">
             <Label>Upload Course Image</Label>
-            <Input
-              onChange={handleImageUploadChange}
+            <Input  // Input field for image upload
+              onChange={handleImageUploadChange}  // Handle image upload change
               type="file"
               accept="image/*"
             />

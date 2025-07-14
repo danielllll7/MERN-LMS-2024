@@ -200,7 +200,7 @@ function CourseCurriculum() {
             id="bulk-media-upload"
             onChange={handleMediaBulkUpload}
           />
-          <Button
+          <Button // Button to open bulk upload dialog
             as="label"
             htmlFor="bulk-media-upload"
             variant="outline"
@@ -213,13 +213,13 @@ function CourseCurriculum() {
         </div>
       </CardHeader>
       <CardContent>
-        <Button
+        <Button // Button to add a new lecture
           disabled={!isCourseCurriculumFormDataValid() || mediaUploadProgress}
           onClick={handleNewLecture}
         >
           Add Lecture
-        </Button>
-        {mediaUploadProgress ? (
+        </Button> 
+        {mediaUploadProgress ? ( // Show progress bar if media is uploading
           <MediaProgressbar
             isMediaUploading={mediaUploadProgress}
             progress={mediaUploadProgressPercentage}
